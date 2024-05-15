@@ -5,14 +5,10 @@ Ich verwende ormlite und mysql.
 Hauptziele: 
 
 Spezifische Insassen in einer Text File mithilfe der Insassen ID geben ausgeben. 
-
-Das Programm soll ohne Error laufen 
-
-Menü erstellen wie bei Kunden_Kauf_etc 
+Many2Many Beziehungen zwischen bewachenden Personal und bewachten Insassen
+One2Many zwischen Zellen und Insassen.
 
 Nebenziele: 
-
-Mehr über Ormitlite lernen. 
 
 Trigger verwenden um den Code möglichst einfach zu halten  
 
