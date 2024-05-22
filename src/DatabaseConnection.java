@@ -13,6 +13,7 @@ public class DatabaseConnection {
     //private Connection connection;
     private final static String DATABASE_URL = "jdbc:mysql://localhost/gefaegnis";
     private Dao<Personal, Integer> Personaldao;
+    private Dao<Insassen,Integer> Insassendao;
     //private Dao<Artikel,Integer> Artikeldao;
     public DatabaseConnection(String user, String password) throws Exception {
         ConnectionSource connectionSource=null;
@@ -51,9 +52,9 @@ public class DatabaseConnection {
         Personal personal=new Personal(vname,nname,alter,sicherheit);
         Personaldao.createIfNotExists(personal);
     }
-    public void createArtikel(String bezeichnung,Double preis) throws SQLException {
-        //Artikel artikel=new Artikel(bezeichnung,preis);
-        //Artikeldao.create(artikel);
+    public void createInsassen(String vname,String nname,int alter,int verbrechenslevel,String verbrechen,int verurteilteJahre ) throws SQLException {
+        Insassen insassen=new Insassen(vname,nname,alter,verbrechenslevel,verbrechen,verurteilteJahre);
+        Insassendao.createIfNotExists(insassen);
     }
 
 
