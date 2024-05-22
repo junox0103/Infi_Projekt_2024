@@ -18,7 +18,7 @@ public class Insassen {
     public static final String VERURTEILTE_JAHRE="Verurteilte Jahre";
 
     @DatabaseField(generatedId = true)
-    private int IDP;
+    private int IDI;
     @DatabaseField(columnName = VNAME_FIELD_NAME, canBeNull = true)
     private String vname;
     @DatabaseField(columnName = NNAME_FIELD_NAME, canBeNull = true)
@@ -44,12 +44,12 @@ public class Insassen {
         this.nname=nname;
     }
 
-    public int getIDP() {
-        return IDP;
+    public int getIDI() {
+        return IDI;
     }
 
-    public void setIDP(int IDP) {
-        this.IDP = IDP;
+    public void setIDI(int IDI) {
+        this.IDI = IDI;
     }
 
     public String getVname() {

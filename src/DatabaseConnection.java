@@ -14,6 +14,7 @@ public class DatabaseConnection {
     private final static String DATABASE_URL = "jdbc:mysql://localhost/gefaegnis";
     private Dao<Personal, Integer> Personaldao;
     private Dao<Insassen,Integer> Insassendao;
+    private Dao<personal_insassen,Integer> personal_insassendao;
     //private Dao<Artikel,Integer> Artikeldao;
     public DatabaseConnection(String user, String password) throws Exception {
         ConnectionSource connectionSource=null;
@@ -43,14 +44,31 @@ public class DatabaseConnection {
     private void setupDatabase(ConnectionSource connectionSource) throws Exception {
         // if you need to create the table
         Personaldao = DaoManager.createDao(connectionSource, Personal.class);
-        //Artikeldao =DaoManager.createDao(connectionSource,Artikel.class);
+        Insassendao = DaoManager.createDao(connectionSource, Insassen.class);
+        personal_insassendao = DaoManager.createDao(connectionSource, personal_insassen.class);
+
         TableUtils.createTableIfNotExists(connectionSource, Personal.class);
-        //TableUtils.createTableIfNotExists(connectionSource, Artikel.class);
+        TableUtils.createTableIfNotExists(connectionSource, Insassen.class);
+        TableUtils.createTableIfNotExists(connectionSource, personal_insassen.class);
 
     }
     public void createPersonal(String vname,String nname,int alter,String sicherheit) throws SQLException {
+        Scanner scanner= new Scanner(System.in);
         Personal personal=new Personal(vname,nname,alter,sicherheit);
         Personaldao.createIfNotExists(personal);
+        System.out.println("Wollen sie dem Personal einen Insassen zuweisen? (Ja/Nein)");
+        String antwort = scanner.next();
+        if (antwort.equals("Ja")){
+            System.out.println("welcher Insasse soll zugewiesen werden? (ID)");
+            int existingInsassenId = scanner.nextInt(); // replace with the actual ID
+            Insassen existingInsassen = Insassendao.queryForId(existingInsassenId);
+            if (existingInsassen != null) {
+                personal_insassen newPersonalInsassen = new personal_insassen(personal, existingInsassen);
+                personal_insassendao.create(newPersonalInsassen);
+            } else {
+                System.out.println("No Insassen found with ID " + existingInsassenId);
+            }
+        }
     }
     public void createInsassen(String vname,String nname,int alter,int verbrechenslevel,String verbrechen,int verurteilteJahre ) throws SQLException {
         Insassen insassen=new Insassen(vname,nname,alter,verbrechenslevel,verbrechen,verurteilteJahre);
@@ -64,8 +82,6 @@ public class DatabaseConnection {
         //Kundenado.updateId(kunden,kid);
 
     }
-
-
 
 
 }
