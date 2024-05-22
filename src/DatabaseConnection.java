@@ -11,8 +11,8 @@ import java.util.Scanner;
 
 public class DatabaseConnection {
     //private Connection connection;
-    private final static String DATABASE_URL = "jdbc:mysql://localhost/Gfaegnis";
-    //private Dao<Kunden, Integer> Kundenado;
+    private final static String DATABASE_URL = "jdbc:mysql://localhost/gefaegnis";
+    private Dao<Personal, Integer> Personaldao;
     //private Dao<Artikel,Integer> Artikeldao;
     public DatabaseConnection(String user, String password) throws Exception {
         ConnectionSource connectionSource=null;
@@ -41,15 +41,15 @@ public class DatabaseConnection {
     }
     private void setupDatabase(ConnectionSource connectionSource) throws Exception {
         // if you need to create the table
-        //Kundenado = DaoManager.createDao(connectionSource, Kunden.class);
+        Personaldao = DaoManager.createDao(connectionSource, Personal.class);
         //Artikeldao =DaoManager.createDao(connectionSource,Artikel.class);
-        //TableUtils.createTableIfNotExists(connectionSource, Kunden.class);
+        TableUtils.createTableIfNotExists(connectionSource, Personal.class);
         //TableUtils.createTableIfNotExists(connectionSource, Artikel.class);
 
     }
-    public void createKunde(String vname,String nname) throws SQLException {
-        //Kunden kunden=new Kunden(vname,nname);
-        //Kundenado.create(kunden);
+    public void createPersonal(String vname,String nname,int alter,String sicherheit) throws SQLException {
+        Personal personal=new Personal(vname,nname,alter,sicherheit);
+        Personaldao.createIfNotExists(personal);
     }
     public void createArtikel(String bezeichnung,Double preis) throws SQLException {
         //Artikel artikel=new Artikel(bezeichnung,preis);
