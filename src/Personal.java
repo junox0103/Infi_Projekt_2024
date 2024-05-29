@@ -1,14 +1,14 @@
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+//import org.json.simple.JSONArray;
+//import org.json.simple.JSONObject;
 
 
 @DatabaseTable(tableName = "Personal")
 public class Personal {
-    JSONObject jsonObject = new JSONObject();
-    JSONArray personal=new JSONArray();
+    //JSONObject jsonObject = new JSONObject();
+    //JSONArray personal=new JSONArray();
     public static final String IDP_FIELD_NAME = "IDP";
     public static final String VNAME_FIELD_NAME = "Vorname";
     public static final String NNAME_FIELD_NAME = "Nachmane";

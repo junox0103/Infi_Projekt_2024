@@ -14,6 +14,7 @@ public class Main {
             System.out.println("Was möchten Sie machen?");
             System.out.println("1: Personal anlegen");
             System.out.println("2: Insassen anlegen");
+            System.out.println("3: Personal und Insassen verknüpfen");
             index = scanner.nextInt();
             if (index == 1) {
                 String name;
@@ -50,6 +51,9 @@ public class Main {
                 System.out.println("Verurteilte Jahre:");
                 years = scanner.nextInt();
                 dbConnection.createInsassen(name, surname, age, crimeLevel, crime, years);
+            }if (index == 3) {
+
+                dbConnection.createperosnal_insassenrel();
             }
         }
     }

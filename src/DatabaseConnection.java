@@ -70,6 +70,32 @@ public class DatabaseConnection {
             }
         }
     }
+
+
+    public void createperosnal_insassenrel() throws SQLException {
+        int pid;
+        int iid;
+        Scanner scanner= new Scanner(System.in);
+        System.out.println("All personal id :");
+        for (Personal personal:Personaldao.queryForAll()){
+            System.out.print(personal.getIDP());
+            System.out.println(" "+personal.getVname());
+        }
+        System.out.println("All Insassen id :");
+        for (Insassen insassen:Insassendao.queryForAll()){
+            System.out.print(insassen.getIDI());
+            System.out.println(" "+insassen.getVname());
+        }
+        System.out.println("Personal ID: ");
+        pid=scanner.nextInt();
+        System.out.println("Insassen ID: ");
+        iid=scanner.nextInt();
+        Personal personal=Personaldao.queryForId(pid);
+        Insassen insassen=Insassendao.queryForId(iid);
+        personal_insassen personal_insassen=new personal_insassen(personal,insassen);
+        personal_insassendao.createIfNotExists(personal_insassen);
+    }
+
     public void createInsassen(String vname,String nname,int alter,int verbrechenslevel,String verbrechen,int verurteilteJahre ) throws SQLException {
         Insassen insassen=new Insassen(vname,nname,alter,verbrechenslevel,verbrechen,verurteilteJahre);
         Insassendao.createIfNotExists(insassen);
