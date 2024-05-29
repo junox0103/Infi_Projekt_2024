@@ -14,7 +14,9 @@ public class DatabaseConnection {
     private final static String DATABASE_URL = "jdbc:mysql://localhost/gefaegnis";
     private Dao<Personal, Integer> Personaldao;
     private Dao<Insassen,Integer> Insassendao;
+
     private Dao<personal_insassen,Integer> personal_insassendao;
+    private Dao<Zelle,Integer> Zelledao;
     //private Dao<Artikel,Integer> Artikeldao;
     public DatabaseConnection(String user, String password) throws Exception {
         ConnectionSource connectionSource=null;
@@ -46,7 +48,9 @@ public class DatabaseConnection {
         Personaldao = DaoManager.createDao(connectionSource, Personal.class);
         Insassendao = DaoManager.createDao(connectionSource, Insassen.class);
         personal_insassendao = DaoManager.createDao(connectionSource, personal_insassen.class);
+        Zelledao= DaoManager.createDao(connectionSource, Zelle.class);
 
+        TableUtils.createTableIfNotExists(connectionSource, Zelle.class);
         TableUtils.createTableIfNotExists(connectionSource, Personal.class);
         TableUtils.createTableIfNotExists(connectionSource, Insassen.class);
         TableUtils.createTableIfNotExists(connectionSource, personal_insassen.class);
@@ -101,13 +105,14 @@ public class DatabaseConnection {
         Insassendao.createIfNotExists(insassen);
     }
 
-
-
-    public  void updateKunde(int kid, String vname, String nname) throws SQLException {
-        //Kunden kunden=new Kunden(vname,nname);
-        //Kundenado.updateId(kunden,kid);
-
+    public void createZelle(String zellenid, int zellengroesse) throws SQLException {
+        Zelle zelle = new Zelle(zellenid, zellengroesse);
+        Zelledao.createIfNotExists(zelle);
     }
+
+
+
+
 
 
 }
