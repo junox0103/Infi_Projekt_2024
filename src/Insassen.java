@@ -76,6 +76,14 @@ public class Insassen {
         this.age = age;
     }
 
+    public int getVerbrechenslevel() {
+        return verbrechenslevel;
+    }
+
+    public void setVerbrechenslevel(int verbrechenslevel) {
+        this.verbrechenslevel = verbrechenslevel;
+    }
+
     public String getVerbrechen() {
         return verbrechen;
     }

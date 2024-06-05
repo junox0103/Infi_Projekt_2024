@@ -7,6 +7,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
 public class DatabaseConnection {
@@ -14,7 +15,7 @@ public class DatabaseConnection {
     private final static String DATABASE_URL = "jdbc:mysql://localhost/gefaegnis";
     private Dao<Personal, Integer> Personaldao;
     private Dao<Insassen,Integer> Insassendao;
-
+    private Dao<zellen_insassen,Integer> zellen_insassenDao;
     private Dao<personal_insassen,Integer> personal_insassendao;
     private Dao<Zelle,Integer> Zelledao;
     //private Dao<Artikel,Integer> Artikeldao;
@@ -49,12 +50,13 @@ public class DatabaseConnection {
         Insassendao = DaoManager.createDao(connectionSource, Insassen.class);
         personal_insassendao = DaoManager.createDao(connectionSource, personal_insassen.class);
         Zelledao= DaoManager.createDao(connectionSource, Zelle.class);
+        zellen_insassenDao= DaoManager.createDao(connectionSource, zellen_insassen.class);
 
         TableUtils.createTableIfNotExists(connectionSource, Zelle.class);
         TableUtils.createTableIfNotExists(connectionSource, Personal.class);
         TableUtils.createTableIfNotExists(connectionSource, Insassen.class);
         TableUtils.createTableIfNotExists(connectionSource, personal_insassen.class);
-
+        TableUtils.createTableIfNotExists(connectionSource, zellen_insassen.class);
     }
     public void createPersonal(String vname,String nname,int alter,String sicherheit) throws SQLException {
         Scanner scanner= new Scanner(System.in);
@@ -100,14 +102,66 @@ public class DatabaseConnection {
         personal_insassendao.createIfNotExists(personal_insassen);
     }
 
-    public void createInsassen(String vname,String nname,int alter,int verbrechenslevel,String verbrechen,int verurteilteJahre ) throws SQLException {
-        Insassen insassen=new Insassen(vname,nname,alter,verbrechenslevel,verbrechen,verurteilteJahre);
+    public void createInsassen(String vname, String nname, int alter, int verbrechenslevel, String verbrechen, int verurteilteJahre) throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        Insassen insassen = new Insassen(vname, nname, alter, verbrechenslevel, verbrechen, verurteilteJahre);
         Insassendao.createIfNotExists(insassen);
+        System.out.println("Wollen sie dem Insassen einer Zelle zuweisen? (Ja/Nein)");
+        String antwort = scanner.next();
+        if (antwort.equals("Ja")) {
+            // Find the cell with the fewest inmates
+            List<Zelle> cells = Zelledao.queryBuilder().orderBy("zug_insassen", true).query();  // Assuming 'zug_insassen' is a field that counts the inmates
+            if (cells.size() > 0) {
+                Zelle selectedCell = cells.get(0);  // Get the cell with the fewest inmates
+                System.out.println("Der Insasse wird der Zelle ID " + selectedCell.getIdz() + " zugewiesen.");
+                zellen_insassen zellen_insassen = new zellen_insassen(selectedCell, insassen);
+                zellen_insassenDao.create(zellen_insassen);
+                selectedCell.setZug_insassen(selectedCell.getZug_insassen() + 1);
+                Zelledao.update(selectedCell);
+                // Update the inmate assignment here, for example by incrementing the count or adding a new inmate relation
+            } else {
+                System.out.println("Keine Zellen verfügbar.");
+            }
+        }
     }
 
-    public void createZelle(String zellenid, int zellengroesse) throws SQLException {
-        Zelle zelle = new Zelle(zellenid, zellengroesse);
+    public void createZelle(int zellengroesse) throws SQLException {
+        Zelle zelle = new Zelle(zellengroesse);
         Zelledao.createIfNotExists(zelle);
+    }
+    public void createZelleinsasse() throws SQLException {
+
+        int iid;
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("All Insassen id :");
+        for (Insassen insassen : Insassendao.queryForAll()) {
+            boolean haftfrai=true;
+            for (zellen_insassen zellen_insassen : zellen_insassenDao.queryForAll()) {
+                if (zellen_insassen.getInsassen().getIDI() == insassen.getIDI()) {
+                    haftfrai = false;
+                }
+            }
+            if (haftfrai) {
+                System.out.print(insassen.getIDI());
+                System.out.println(" " + insassen.getVname());
+            }
+
+        }
+        System.out.println("Personal ID: ");
+        iid = scanner.nextInt();
+        Insassen insassen = Insassendao.queryForId(iid);
+        List<Zelle> cells = Zelledao.queryBuilder().orderBy("zug_insassen", true).query();  // Assuming 'zug_insassen' is a field that counts the inmates
+        if (cells.size() > 0) {
+            Zelle selectedCell = cells.get(0);  // Get the cell with the fewest inmates
+            System.out.println("Der Insasse wird der Zelle ID " + selectedCell.getIdz() + " zugewiesen.");
+            zellen_insassen zellen_insassen = new zellen_insassen(selectedCell, insassen);
+            zellen_insassenDao.create(zellen_insassen);
+            selectedCell.setZug_insassen(selectedCell.getZug_insassen() + 1);
+            Zelledao.update(selectedCell);    // Update the inmate assignment here, for example by incrementing the count or adding a new inmate relation
+        } else {
+            System.out.println("Keine Zellen verfügbar.");
+        }
+
     }
 
 

@@ -16,6 +16,7 @@ public class Main {
             System.out.println("2: Insassen anlegen");
             System.out.println("3: Personal und Insassen verknüpfen");
             System.out.println("4: Zelle registrieren");
+            System.out.println("5: Insasse mit Zelle verknüpfen");
             index = scanner.nextInt();
             if (index == 1) {
                 String name;
@@ -56,13 +57,11 @@ public class Main {
 
                 dbConnection.createperosnal_insassenrel();
             }if (index == 4) {
-                String zellenid;
-                int platzanzahl;
-                System.out.println("zellenid:");
-                zellenid = scanner.next();
-                System.out.println("Platzanzahl:");
-                platzanzahl = scanner.nextInt();
-                dbConnection.createZelle(zellenid, platzanzahl);
+                System.out.println("Eine neue Zelle wurde gebaut");
+                int platzanzahl=0;
+                dbConnection.createZelle(platzanzahl);
+            }if (index == 5) {
+                dbConnection.createZelleinsasse();
             }
         }
     }
