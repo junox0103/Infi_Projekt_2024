@@ -2,13 +2,13 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        int index=0;
+        int index = 0;
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("User:");
-        String user=scanner.nextLine();
+        String user = scanner.nextLine();
         System.out.println("Password:");
-        String password=scanner.nextLine();
+        String password = scanner.nextLine();
         DatabaseConnection dbConnection = new DatabaseConnection(user, password);
         while (true) {
             System.out.println("Was möchten Sie machen?");
@@ -17,6 +17,9 @@ public class Main {
             System.out.println("3: Personal und Insassen verknüpfen");
             System.out.println("4: Zelle registrieren");
             System.out.println("5: Insasse mit Zelle verknüpfen");
+            System.out.println("6: Insassen in File Exporten");
+            System.out.println("7: Insassen entlassen");
+            System.out.println("8: Insassen aus File importieren");
             index = scanner.nextInt();
             if (index == 1) {
                 String name;
@@ -53,15 +56,27 @@ public class Main {
                 System.out.println("Verurteilte Jahre:");
                 years = scanner.nextInt();
                 dbConnection.createInsassen(name, surname, age, crimeLevel, crime, years);
-            }if (index == 3) {
+            }
+            if (index == 3) {
 
                 dbConnection.createperosnal_insassenrel();
-            }if (index == 4) {
+            }
+            if (index == 4) {
                 System.out.println("Eine neue Zelle wurde gebaut");
-                int platzanzahl=0;
+                int platzanzahl = 0;
                 dbConnection.createZelle(platzanzahl);
-            }if (index == 5) {
+            }
+            if (index == 5) {
                 dbConnection.createZelleinsasse();
+            }
+            if (index == 6) {
+                dbConnection.exportInsassen();
+            }
+            if (index == 7) {
+                dbConnection.entlassenInsassen();
+            }
+            if (index == 8) {
+                dbConnection.importInsassen();
             }
         }
     }

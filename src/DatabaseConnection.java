@@ -6,9 +6,13 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
+import java.io.FileReader;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
+import com.google.gson.Gson;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class DatabaseConnection {
     //private Connection connection;
@@ -84,13 +88,12 @@ public class DatabaseConnection {
         Scanner scanner= new Scanner(System.in);
         System.out.println("All personal id :");
         for (Personal personal:Personaldao.queryForAll()){
-            System.out.print(personal.getIDP());
-            System.out.println(" "+personal.getVname());
+            System.out.println(personal.getIDP()+" "+personal.getVname());
         }
         System.out.println("All Insassen id :");
         for (Insassen insassen:Insassendao.queryForAll()){
-            System.out.print(insassen.getIDI());
-            System.out.println(" "+insassen.getVname());
+            System.out.println(insassen.getIDI()+" "+insassen.getVname());
+
         }
         System.out.println("Personal ID: ");
         pid=scanner.nextInt();
@@ -118,6 +121,8 @@ public class DatabaseConnection {
                 zellen_insassenDao.create(zellen_insassen);
                 selectedCell.setZug_insassen(selectedCell.getZug_insassen() + 1);
                 Zelledao.update(selectedCell);
+
+                System.out.println("Zelle ID " + selectedCell.getIdz() + " hat jetzt " + selectedCell.getZug_insassen() + " Insassen.");
                 // Update the inmate assignment here, for example by incrementing the count or adding a new inmate relation
             } else {
                 System.out.println("Keine Zellen verfügbar.");
@@ -147,7 +152,7 @@ public class DatabaseConnection {
             }
 
         }
-        System.out.println("Personal ID: ");
+        System.out.println("Insassen ID: ");
         iid = scanner.nextInt();
         Insassen insassen = Insassendao.queryForId(iid);
         List<Zelle> cells = Zelledao.queryBuilder().orderBy("zug_insassen", true).query();  // Assuming 'zug_insassen' is a field that counts the inmates
@@ -164,9 +169,105 @@ public class DatabaseConnection {
 
     }
 
+    public void exportInsassen() throws SQLException {
+        try (FileWriter writer = new FileWriter("insassen.json")) {
+            // Do nothing
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Wollen Sie alle Insassen exportieren? (Ja/Nein)");
+        Scanner scanner = new Scanner(System.in);
+        String antwort = scanner.next();
+        if (antwort.equals("Ja")||antwort.equals("ja")){
+            List<Insassen> insassenList = Insassendao.queryForAll();
+            Gson gson = new Gson();
+            String json = gson.toJson(insassenList);
+
+            try (FileWriter writer = new FileWriter("Infi_Projekt_2024/src/insassen.json")) {
+                writer.write(json);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(antwort.equals("Nein")||antwort.equals("nein")) {
+            for (Insassen insassen: Insassendao.queryForAll()) {
+                System.out.println(insassen.getIDI() + " " + insassen.getVname());
+            }
+            System.out.println("Welche Insassen sollen exportiert werden? (ID)");
+            int id = scanner.nextInt();
+            Insassen insassen = Insassendao.queryForId(id);
+            Gson gson = new Gson();
+            String json = gson.toJson(insassen);
+            try (FileWriter writer = new FileWriter("Infi_Projekt_2024/src/insassen.json")) {
+                writer.write(json);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+    public void entlassenInsassen() throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        for (Insassen insassen : Insassendao.queryForAll()) {
+            System.out.println(insassen.getIDI() + " " + insassen.getVname());
+        }
+        System.out.println("Welcher Insasse soll entlassen werden? (ID)");
+        int id = scanner.nextInt();
+        Insassen insassen = Insassendao.queryForId(id);
+        if (insassen != null) {
+            try {
+                System.out.println("Insasse gefunden: " + insassen.getVname()); // Debug print
+                List<zellen_insassen> zellenInsassenList = zellen_insassenDao.queryForEq("insassen_id", id);
+
+                for (zellen_insassen zellenInsassen : zellenInsassenList) {
+                    Zelle zelle = zellenInsassen.getZelle();
+                    Zelledao.refresh(zelle);
+                    System.out.println("Zelle gefunden: ID " + zelle.getIdz() + " mit " + zelle.getZug_insassen() + " Insassen"); // Debug print
 
 
+                        zelle.setZug_insassen(zelle.getZug_insassen() - 1); // Decrement the inmate count
+                        Zelledao.update(zelle); // Update the cell in the database
+                        System.out.println("After decrement: " + zelle.getZug_insassen()); // Debug print
 
+                        // Überprüfen, ob die Aktualisierung erfolgreich war
+                        Zelle updatedZelle = Zelledao.queryForId(zelle.getIdz());
+                        System.out.println("Updated Zelleninsassen: " + updatedZelle.getZug_insassen()); // Debug print
+
+                    zellen_insassenDao.delete(zellenInsassen);
+                }
+                try {
+                    List<personal_insassen> personalInsassenList = personal_insassendao.queryForEq("insassen_id", id);
+                    for (personal_insassen personalInsassen : personalInsassenList) {
+                        personal_insassendao.delete(personalInsassen);
+                    }
+                }catch (SQLException e){
+                    System.out.println("Kein Personal gefunden");
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            Insassendao.delete(insassen);
+            System.out.println("Insasse with ID " + id + " has been released."); // Confirmation message
+        } else {
+            System.out.println("No Insassen found with ID " + id);
+        }
+    }
+
+    public void importInsassen() {
+        Gson gson = new Gson();
+        try (FileReader reader = new FileReader("Infi_Projekt_2024/src/Insassenimport.json")) {
+
+            Insassen[] insassenArray = gson.fromJson(reader, Insassen[].class);
+            for (Insassen insassen : insassenArray) {
+                Insassendao.createIfNotExists(insassen);
+            }
+            System.out.println("Insassen imported successfully.");
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }

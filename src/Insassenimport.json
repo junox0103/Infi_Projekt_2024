@@ -1,0 +1,12 @@
+[
+  {
+
+    "vname": "John",
+    "nname": "Doe",
+    "age": 30,
+    "verbrechenslevel": 2,
+    "verbrechen": "Theft",
+    "verurteilteJahre": 5
+  }
+
+]
